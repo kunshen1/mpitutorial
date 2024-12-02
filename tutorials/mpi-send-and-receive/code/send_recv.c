@@ -27,6 +27,10 @@ int main(int argc, char** argv) {
   }
 
   int number;
+
+  char processor_name[MPI_MAX_PROCESSOR_NAME];
+  int name_len;
+
   if (world_rank == 0) {
     // If we are rank 0, set the number to -1 and send it to process 1
     number = -1;
@@ -37,6 +41,8 @@ int main(int argc, char** argv) {
       /* destination  = */ 1, 
       /* tag          = */ 0, 
       /* communicator = */ MPI_COMM_WORLD);
+      MPI_Get_processor_name(processor_name, &name_len);
+      printf("Process 0 sent number %d to process 1 on processor %s, rank %d out of %d processors\n", number, processor_name, world_rank, world_size);
   } else if (world_rank == 1) {
     MPI_Recv(
       /* data         = */ &number, 
@@ -46,7 +52,9 @@ int main(int argc, char** argv) {
       /* tag          = */ 0, 
       /* communicator = */ MPI_COMM_WORLD, 
       /* status       = */ MPI_STATUS_IGNORE);
-    printf("Process 1 received number %d from process 0\n", number);
+    MPI_Get_processor_name(processor_name, &name_len);
+    printf("Process 1 received number %d from process 0 on processor %s, rank %d out of %d processors\n", number, processor_name, world_rank, world_size);
+    // printf("Process 1 received number %d from process 0\n", number);
   }
   MPI_Finalize();
 }
